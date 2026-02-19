@@ -26,6 +26,7 @@ import GenericPage from './pages/GenericPage';
 import DataMigration from './pages/DataMigration';
 import ViewedProperties from './pages/ViewedProperties';
 import ViewedInquiries from './pages/ViewedInquiries';
+import AdvtBooster from './pages/AdvtBooster';
 
 function App() {
   return (
@@ -222,12 +223,7 @@ function App() {
             />
             <Route
               path="advtBooster"
-              element={
-                <GenericPage
-                  title="Advt. Booster"
-                  description="Create and manage social media advertisements for selected projects across Instagram, Facebook, WhatsApp, 99acres and more. Detailed campaign builder coming soon."
-                />
-              }
+              element={<AdvtBooster />}
             />
           </Route>
         </Routes>

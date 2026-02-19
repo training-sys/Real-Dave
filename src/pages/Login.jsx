@@ -1,14 +1,12 @@
-import { Form, Input, Button, Checkbox, Card, Typography, Select, message } from 'antd';
+import { Form, Input, Button, Checkbox, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 const Login = () => {
     const navigate = useNavigate();
-    const { userProfile, setUserProfile, subUsers } = useData();
+    const { setUserProfile, subUsers } = useData();
 
     const onFinish = (values) => {
         const { username, password } = values;

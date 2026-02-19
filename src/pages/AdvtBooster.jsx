@@ -21,6 +21,15 @@ const AdvtBooster = () => {
         { title: 'Creative & Review', icon: <UploadOutlined /> },
     ];
 
+    const handleQuickCampaign = (property) => {
+        const defaultName = property.title || property.name || 'Property Campaign';
+        form.setFieldsValue({
+            campaignName: defaultName,
+            property: property.title || property.name || '',
+        });
+        setCurrentStep(1);
+    };
+
     const handleNext = () => {
         form.validateFields().then(() => {
             setCurrentStep(currentStep + 1);
@@ -58,6 +67,19 @@ const AdvtBooster = () => {
             }, 1500);
         });
     };
+
+    const activeCampaigns = campaigns.filter(c => c.status === 'Active').length;
+    const totalBudget = campaigns.reduce((sum, c) => sum + (Number(c.budget) || 0), 0);
+    const totalLeads = campaigns.reduce((sum, c) => sum + (Number(c.leads) || 0), 0);
+    const averageCpl = totalLeads > 0 ? Math.round(totalBudget / totalLeads) : 0;
+
+    const platformStats = ['facebook', 'instagram', 'linkedin', 'google'].map(p => {
+        const items = campaigns.filter(c => c.platform === p);
+        const count = items.length;
+        const leads = items.reduce((sum, c) => sum + (Number(c.leads) || 0), 0);
+        const spend = items.reduce((sum, c) => sum + (Number(c.budget) || 0), 0);
+        return { platform: p, count, leads, spend };
+    });
 
     const columns = [
         {
@@ -209,10 +231,82 @@ const AdvtBooster = () => {
         <div>
             <div style={{ marginBottom: 24 }}>
                 <Title level={2}>Advt. Booster</Title>
-                <Paragraph type="secondary">Create and launch social media ad campaigns directly from your CRM.</Paragraph>
+                <Paragraph type="secondary">
+                    Create and manage social media advertisements for selected projects across Instagram, Facebook,
+                    WhatsApp, 99acres and more. Detailed campaign builder coming soon.
+                </Paragraph>
             </div>
 
-            <Card style={{ borderRadius: 12 }}>
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={12} md={6}>
+                    <Card size="small">
+                        <Text type="secondary">Active Campaigns</Text>
+                        <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{activeCampaigns}</div>
+                    </Card>
+                </Col>
+                <Col xs={12} md={6}>
+                    <Card size="small">
+                        <Text type="secondary">Total Budget</Text>
+                        <div style={{ fontSize: 20, fontWeight: 'bold', marginTop: 4 }}>
+                            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalBudget)}
+                        </div>
+                    </Card>
+                </Col>
+                <Col xs={12} md={6}>
+                    <Card size="small">
+                        <Text type="secondary">Leads Generated</Text>
+                        <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{totalLeads}</div>
+                    </Card>
+                </Col>
+                <Col xs={12} md={6}>
+                    <Card size="small">
+                        <Text type="secondary">Avg CPL</Text>
+                        <div style={{ fontSize: 20, fontWeight: 'bold', marginTop: 4 }}>
+                            {averageCpl > 0
+                                ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(averageCpl)
+                                : '—'}
+                        </div>
+                    </Card>
+                </Col>
+            </Row>
+
+            <Card size="small" style={{ marginBottom: 24 }}>
+                <Row gutter={[16, 16]} align="middle">
+                    <Col xs={24} md={6}>
+                        <div>
+                            <Text strong>Quick Campaign</Text>
+                            <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                                Pick a project or property and jump to campaign details.
+                            </div>
+                        </div>
+                    </Col>
+                    <Col xs={24} md={18}>
+                        <Row gutter={[8, 8]}>
+                            {properties.slice(0, 4).map(p => (
+                                <Col key={p.key} xs={12} md={6}>
+                                    <Button
+                                        block
+                                        size="small"
+                                        onClick={() => handleQuickCampaign(p)}
+                                        style={{ textAlign: 'left', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                                    >
+                                        {p.title || p.name || 'Property'}
+                                    </Button>
+                                </Col>
+                            ))}
+                            {properties.length === 0 && (
+                                <Col xs={24}>
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        No properties available yet. Add properties to use Quick Campaign.
+                                    </Text>
+                                </Col>
+                            )}
+                        </Row>
+                    </Col>
+                </Row>
+            </Card>
+
+            <Card style={{ borderRadius: 12, marginBottom: 24 }}>
                 <Steps current={currentStep} style={{ marginBottom: 40 }}>
                     {steps.map(item => <Step key={item.title} title={item.title} icon={item.icon} />)}
                 </Steps>
@@ -245,6 +339,25 @@ const AdvtBooster = () => {
                     </div>
                 </Form>
             </Card>
+
+            <Row gutter={[16, 16]} style={{ marginTop: 24, marginBottom: 16 }}>
+                {platformStats.map(stat => (
+                    <Col xs={24} md={6} key={stat.platform}>
+                        <Card size="small">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text strong style={{ textTransform: 'capitalize' }}>{stat.platform}</Text>
+                                <Tag>{stat.count} campaigns</Tag>
+                            </div>
+                            <div style={{ fontSize: 12, color: '#888' }}>Leads</div>
+                            <div style={{ fontSize: 18, fontWeight: 'bold' }}>{stat.leads}</div>
+                            <div style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Budget</div>
+                            <div style={{ fontSize: 16, fontWeight: 'bold' }}>
+                                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(stat.spend)}
+                            </div>
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
 
             <div style={{ marginTop: 32 }}>
                 <Title level={4}>Recent Campaigns</Title>
